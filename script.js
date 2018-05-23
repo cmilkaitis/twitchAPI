@@ -1,18 +1,23 @@
 $(document).ready(function() {
     let streams = ["freecodecamp", "timthetatman", "summit1g"];
     let url = "https://wind-bow.glitch.me/twitch-api/streams/";
-
+    let channel = "https://wind-bow.glitch.me/twitch-api/channels/";
+    
     for(let i = 0; i < streams.length; i++) {
-        streamUrl = url + streams[i];  
-        console.log(streamUrl) 
+       let streamUrl = url + streams[i];
+       let channelUrl = channel + streams[i];
+
         $.getJSON(streamUrl, function(data){
-            console.log(data)
             if(data.stream === null) {
-                $("#content").append("<div><p>" + streams[i] + " is not online</p></div>");
+                $.getJSON(channelUrl, function(data){
+                    console.log(data);
+                    let date = (String(data.updated_at).split("").slice(0,10).join(""));
+                    $("#content").append("<div class='item' style='border: black 1px solid; margin-top: 5px; margin-bottom: 5px'><p>" + data.display_name +" was last online " + date + "</p></div>");
+                });
             } else {
-                $("#content").append("<div id='channel'" + i + ">" + streams[i] + "  is online </div><br>");
-                $(`#channel`).append("<p>Playing " + data.stream.channel.game + " for " + data.stream.viewers +"</p>")
-            }
-        })
+                $("#content").append(`<div id='channel${i}' class='item' style='border: black 1px solid; margin-top: 5px; margin-bottom: 5px'><p> ${streams[i]} is online playing ${data.stream.channel.game} for ${data.stream.viewers} viewers.<p></div>`);
+                $(`#channel${i}`).append(`<img src="${data.stream.preview.medium}">`)
+            }   
+        });
     }
-})
+});
